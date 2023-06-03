@@ -7,7 +7,7 @@ let latitude,longitude;
 let shouldListen= true;
 let synth= speechSynthesis;
 let utter= new SpeechSynthesisUtterance();
-
+let name= localStorage.getItem("name") || null;
 
 let tempNow= document.querySelector(".temp_now");
 let tempFut= document.querySelector(".weather-future");
@@ -35,17 +35,14 @@ synth.onvoiceschanged= function(e){
     console.log(utter.voice)
     recognition.start()
 }
-function speakThis(msg= "Please enter something"){
-    // setTimeout(function(){
-        
+function speakThis(msg= "Please enter something"){        
     utter.text= msg;
     commandTxt.textContent= msg;
 
     synth.speak(utter);
-    // },RANDOM_MAGIC_NUM)
 }
 
-window.addEventListener("load",speakThis.bind(null,"Welcome Human"));
+window.addEventListener("load",speakThis.bind(null,`Welcome ${name? name: "Human"}`));
 utter.onstart = () => {
     if(shouldListen) shouldListen=!shouldListen;
     recognition.abort();
@@ -78,15 +75,34 @@ if(staySilent) return;
      }
      else if(/today.*date|what is the date|what's the date/.test(cmd)){ speakThis(date.toString().slice(0,15))}
      else if(/howdy|\bhow are you\b|\bwhat's up\b/i.test(cmd)) speakThis("I am fine and you");
-    else if(/I am fine|I am doing great/i.test(cmd)) speakThis("That's great to hear");
-    else if(/your name|your identity/i.test(cmd)) speakThis("Everyone calls me jarvis but you can call me anytime");
-    else if(/what's the temperature|temperature today|today temperature/i.test(cmd)){ 
+    else if(/I am fine|I am doing (great|fine)/i.test(cmd)) speakThis("That's great to hear");
+    else if(/what is my name|What's my name|tell my name|do you know me|do you know my name/i.test(cmd)){
+        if(!name) speakThis("I don't know your name but I would love to know you");
+        else speakThis(`your name is ${name}`);
+    }
+    else if(/my name is|the name is|call me/i.test(cmd)){
+      
+          let searchItem =  cmd.split(/\bis\b/i)[1] || cmd.split("me")[1];
+          console.log("this is",searchItem)
+        //   if(name) {
+            searchItem=searchItem.trim();
+            console.log(searchItem)
+            name=searchItem;
+            localStorage.setItem("name",name);
+            console.log(name)
+            console.log("console again",  searchItem? name: "Human")
+            speakThis(`Ok i will call you ${name}`);
+          }
+    
+    else if(/your name|your identity/i.test(cmd)) speakThis("Everyone calls me friday but you can call me anytime");
+    else if(/what's the temperature|what is the temperature( today)?|today temperature|todya's temperature/i.test(cmd)){ 
         speakThis(tempNow.textContent);
     }
-    else if(/what will be the temperature tommorow|temperature tommorow/i.test(cmd)){
-        console.log("working")
-        speakThis(tempFut.querySelectorAll("span")[1].textContent)
+      else if(/temperature tomorrow/i.test(cmd)){
+        console.log("triggered");
+         speakThis(tempFut.querySelectorAll("span")[1].textContent);
     }
+  
     else if(/open.*facebook/i.test(cmd)){
         speakThis("Opening Facebook")
        open("https://www.facebook.com");
@@ -96,9 +112,17 @@ if(staySilent) return;
             if(/\bopen youtube( and)? search\b/i.test(cmd)){
                 let searchItem = cmd.includes("for")? cmd.split("for")[1] : cmd.split("search")[1];
                 console.log("this is search command", searchItem)
-              open(`https://www.youtube.com/results?search_query=${searchItem}`)
+              open(`https://www.youtube.com/results?search_query=${searchItem}`);
+              return;
             } 
+            if(/open youtube( and)? play/i.test(cmd)){
+                let searchItem =  cmd.split("play")[1];
+                console.log("this is search command", searchItem)
+              open(`https://www.youtube.com/results?search_query=${searchItem} |`);
+              return;
+            }
             else open("https://www.youtube.com");
+
     }
         else if( /open.*google/i.test(cmd)){
             speakThis("Opening google")
@@ -111,24 +135,36 @@ if(staySilent) return;
     }
     else if( /open.*setting/i.test(cmd)) open("ms-settings:");
     else if( /open.*bluetooth/i.test(cmd)) open("ms-settings-bluetooth:");
-   else if((/mr jarvis|Mister jarvis|jarvis|search/i.test(cmd))) {
+    else if(/shutdown|close yourself/i.test(cmd)) {
+        speakThis("Shutting down");
+        setTimeout(function(){
+            close(location.href);
+    },2000)
+    }
+   else if((/search/i.test(cmd))) {
   let searchItem =  cmd.split("search for")?.[1] || cmd.split("search")?.[1];
   speakThis(`searching for ${searchItem} on perplexity`);
     open(`https://www.perplexity.ai/search?q=${searchItem}`,"_blank", "incognito=yes")
     
 }
+else if(/mr friday|Mister friday|friday/i.test(cmd)){
+    
+  cmd= cmd.toLowerCase();
+  if(cmd==="friday"||cmd==="Mister friday" || cmd==="mr friday") {
+    speakThis("Yes sir");
+    return;
+  };
+      let searchItem =  cmd.split("friday")[1];
+ speakThis(`searching for ${searchItem} on perplexity`);
+      open(`https://www.perplexity.ai/search?q=${searchItem}`,"_blank", "incognito=yes")
+}
 else {
     speakThis("I am not sure i understand");
 }
+
 }
-    
 
 function weatherData(){
-
-    // fetch("https://api.open-meteo.com/v1/forecast?latitude=27.6791296&longitude=85.3409792&daily=temperature_2m_max&timezone=auto")
-    // .then(res=> res.json())
-    // .then(res=> console.log(res))
-
     fetch(`https://api.open-meteo.com/v1/forecast?latitude=${latitude}&longitude=${longitude}&hourly=temperature_2m`)
     .then(res=> res.json())
     .then(data => parseDateWeather(data))
@@ -196,4 +232,4 @@ function manageDailyData(obj){
 }
 
 
-  geoData()
+  geoData();
