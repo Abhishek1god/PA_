@@ -1,31 +1,62 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="stylesheet" href="style.css">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="stylesheet" href="style.css" />
     <title>PA</title>
-
-</head>
-<body>
-    <div class="heading-content">
-        <div class="weather-container">
-            <div class="weather-today">
-            <div class="temp-info"><span class="bold">Banepa,Nepal</span><span class="bold temp_now">--</span></div>
-            
-            <img src="temperature.png" alt="">
-           </div>
-           <div class="weather-future">
-            <span>--</span> <span>--</span><span> --</span>
-           </div>
+  </head>
+  <script>
+    window.onload= function(){
+      let txtArea = document.querySelector("textarea");
+      txtArea.focus();
+    }
+  </script>
+  <body>
+    <section class="section_1 wd-50">
+        <div class="cli-container">
+            <div class="cli-head">
+                <span class="dot"></span><span class="dot"></span><span class="dot"></span>
+            </div>
+            <div class="cli-body">
+                <span class="location-txt">$ abhi_7 ~/abhi1god
+                </span>  
+                 <textarea cols="0" rows="0" style="height: 0; width:0;"></textarea>
+                 <div class="cli-commands blinker"></div>
+                 
+                 
+            </div>
         </div>
-    </div>
-    <div class="wrapper">
-        <div class="speaking_"><span>Active Mode</span></div>
-<div class="query_content">At your service</div>
 
+    </section>
+<section class="section_2 wd-50">
+        <div class="heading-content">
+          <div class="weather-container">
+            <div class="weather-today">
+              <div class="temp-info">
+                <span class="bold">Banepa,Nepal</span
+                ><span class="bold temp_now">--</span>
+              </div>
+
+              <img src="temperature.png" alt="" />
+            </div>
+            <div class="weather-future">
+              <span>--</span> <span>--</span><span> --</span>
+            </div>
+          </div>
+        </div>
+        <div class="wrapper">
+          <div class="speaking_"><span>Active Mode</span></div>
+          <div class="query_content">At your service</div>
+        </div>
+      </div>
+      
     </div>
-    <script src="./src/recognition.js" async></script>
-</body>
+</section>
+
+    <script type="module" src="./src/main.js" async></script>
+    <!-- <script type="module" src="./src/clicmd.js"></script> -->
+    <script type="module" src="./src/cli.js"></script>
+  </body>
 </html>
