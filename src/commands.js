@@ -46,17 +46,10 @@ function modeTog(val) {
   }
   return `mode change to ${val}`;
 }
-function clear() {
+function cleared() {
   console.log(cliBody);
-  cliBody.innerHTML = `
-  <span class="location-txt">$ abhi_7 ~/abhi1god
-  </span>  
-  <textarea cols="0" rows="0" style="height: 0; width:0;"></textarea>
-  <div class="cli-commands blinker"></div>
-  
-  
-  `;
   console.log("cleared");
+  return "cleared";
 }
 
 export const commandInfo = [
@@ -93,7 +86,7 @@ export const commandInfo = [
   },
   {
     name: "clear",
-    func: clear,
+    func: cleared,
     desc: "Clear's the terminal",
   },
   {

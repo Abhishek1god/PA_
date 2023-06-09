@@ -1,5 +1,6 @@
 import { command } from "./web.js";
 import { localStorageGet, localStorageSet } from "./web.js";
+import { fetchLocationName } from "./main.js";
 let staySilent = false;
 let SpeechRecognition = window.SpeechRecognition || webkitSpeechRecognition;
 let recognition = new SpeechRecognition();
@@ -38,7 +39,7 @@ synth.onvoiceschanged = function (e) {
   if (shouldListen) recognition.start();
 };
 function speakThis(msg = "Please enter something", multi_msg = null) {
-  let txt = `${msg} ${Array.isArray(multi_msg) ? multi_msg.join(" ") : ""}`;
+  let txt = `${msg} ${Array.isArray(multi_msg) ? multi_msg.join(" ") : ""}`; //if there are multiple argument that comes from cli then join them
   utter.text = txt;
   commandTxt.textContent = txt;
 
@@ -212,14 +213,16 @@ function geoData() {
   navigator.geolocation.getCurrentPosition(showPosition);
 }
 
-function showPosition(position) {
-  // console.log(position.coords.latitude , "this is")
+async function showPosition(position) {
   latitude = position.coords.latitude;
   longitude = position.coords.longitude;
   weatherData();
-  // showPosition(latitude,longitude)
+  let location = await fetchLocationName(latitude, longitude);
+  let locCnt = document.querySelector(".temp-info> span");
+  let locationTxt = `${location.results[0].locations[0].adminArea1} , ${location.results[0].locations[0].adminArea4}`;
+  console.log(locationTxt, location);
+  locCnt.textContent = locationTxt;
 }
-function getDate() {}
 function parseDateWeather(data) {
   let date = new Date();
   let year = date.getFullYear();
@@ -228,18 +231,9 @@ function parseDateWeather(data) {
   let MonthDate = date.getDate().toString().padStart(2, 0);
   let tempTime = data.hourly.time;
   let temperature = data.hourly.temperature_2m;
-  // console.log(tempTime[0])
   let index = tempTime.findIndex(function (time) {
-    let pattern = new RegExp(`${year}-${month}-${MonthDate}T${hour}:00`); //recreated with regex
-    // console.log(time, pattern)
+    let pattern = new RegExp(`${year}-${month}-${MonthDate}T${hour}:00`);
     return pattern.test(time);
-
-    //     let tempMonth= time.split("-")[1];  //more hassle and non effective way
-    //     let tempDate= time.split("-")[2].slice(0,2);
-    //     let tempHour= time.split("-")[2].slice(-5).slice(0,2);
-    //  if(tempMonth==month && tempDate==MonthDate && tempHour==hour){
-    //     return true;
-    //  }
   });
   tempNow.textContent = temperature[index] + "°C";
   return temperature[index];
@@ -251,7 +245,6 @@ function manageDailyData(obj) {
 
   tempFut.innerHTML = maxArr
     .map(function (el, i) {
-      // if(i>3) return;
       return `
         <span>${Math.floor(minArr[i])}-${Math.floor(el)}°C</span>
         `;

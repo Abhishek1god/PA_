@@ -9,7 +9,6 @@ export const appendCommand = function (cmd) {
   if (cmd.split(" ").length !== 1) {
     [cmd, arg, ...multi] = cmd.split(" ");
     console.log(multi, "multi");
-    // cmd = cmd.trim();
   }
   let el = commandInfo.find(function (el) {
     console.log(cmd);
@@ -18,8 +17,15 @@ export const appendCommand = function (cmd) {
 
   console.log(el);
   try {
+    if (cmd.trim() === "clear") {
+      cliBody.innerHTML = "";
+      return;
+    }
     resTxt.innerHTML =
       typeof el.func === "function" ? el.func(arg, multi) : el.func[cmd];
+    console.log(cliBody, "this is cli body");
+    console.log(resTxt, "this is cli res");
+
     cliBody.append(resTxt);
   } catch (err) {
     if (!el) {
