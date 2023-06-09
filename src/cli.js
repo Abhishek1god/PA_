@@ -17,6 +17,7 @@ cliContain.addEventListener("keypress", function (e) {
   if (e.keyCode != 13) return;
   let cmd = txtArea.value;
   appendCommand(cmd);
+
   let locationTxt = document.createElement("span");
   let cliDiv = document.createElement("div");
   cliDiv.classList.add("cli-commands");
@@ -28,4 +29,16 @@ cliContain.addEventListener("keypress", function (e) {
   cliCommand.classList.add("blinker");
   txtArea.value = "";
 });
+export const errFuncLoc = function () {
+  let locationTxt = document.createElement("span");
+  let cliDiv = document.createElement("div");
+  cliDiv.classList.add("cli-commands");
+  locationTxt.classList.add("location-txt");
+  locationTxt.textContent = LOCATION_TXT;
+  cliCommand.classList.remove("blinker");
+  cliBody.append(locationTxt, cliDiv);
+  cliCommand = cliBody.lastElementChild;
+  cliCommand.classList.add("blinker");
+  txtArea.value = "";
+};
 export { cliBody };

@@ -4,7 +4,7 @@ import { fetchLocationName } from "./main.js";
 let staySilent = false;
 let SpeechRecognition = window.SpeechRecognition || webkitSpeechRecognition;
 let recognition = new SpeechRecognition();
-let latitude, longitude;
+// let latitude, longitude;
 
 let shouldListen = true;
 let synth = speechSynthesis;
@@ -33,9 +33,8 @@ recognition.addEventListener("end", () => {
 
 synth.onvoiceschanged = function (e) {
   let voices = this.getVoices();
-  // console.log(voices)
   utter.voice = voices[1];
-  console.log(utter.voice);
+  // console.log(utter.voice);
   if (shouldListen) recognition.start();
 };
 function speakThis(msg = "Please enter something", multi_msg = null) {
@@ -62,7 +61,7 @@ utter.onend = () => {
 };
 function commands(cmd) {
   let date = new Date();
-  console.log("commanded");
+  // console.log("commanded");
 
   if (/^silent$|\bstay silent\b/i.test(cmd)) {
     speakThis("Silent Mode");
@@ -91,22 +90,18 @@ function commands(cmd) {
       cmd
     )
   ) {
-    if (!name) speakThis("I don't know your name but I would love to know you");
+    if (!localStorage.getItem("name"))
+      speakThis("I don't know your name but I would love to know");
     else {
       name = localStorageGet("name");
       speakThis(`your name is ${name}`);
     }
   } else if (/my name is|the name is|call me/i.test(cmd)) {
     let searchItem = cmd.split(/\bis\b/i)[1] || cmd.split("me")[1];
-    console.log("this is", searchItem);
-    //   if(name) {
+
     searchItem = searchItem.trim();
-    console.log(searchItem);
     name = searchItem;
-    // localStorage.setItem("name", name);
     localStorageSet("name", name);
-    console.log(name);
-    console.log("console again", searchItem ? name : "Human");
     speakThis(`Ok i will call you ${name}`);
   } else if (/your name|your identity/i.test(cmd))
     speakThis("Everyone calls me friday but you can call me anytime");
@@ -127,13 +122,13 @@ function commands(cmd) {
       let searchItem = cmd.includes("for")
         ? cmd.split("for")[1]
         : cmd.split("search")[1];
-      console.log("this is search command", searchItem);
+      // console.log("this is search command", searchItem);
       open(`https://www.youtube.com/results?search_query=${searchItem}`);
       return;
     }
     if (/open youtube( and)? play/i.test(cmd)) {
       let searchItem = cmd.split("play")[1];
-      console.log("this is search command", searchItem);
+      // console.log("this is search command", searchItem);
       open(`https://www.youtube.com/results?search_query=${searchItem} |`);
       return;
     } else open("https://www.youtube.com");
@@ -143,7 +138,7 @@ function commands(cmd) {
       let searchItem = cmd.includes("for")
         ? cmd.split("for")[1]
         : cmd.split("search")[1];
-      console.log("this is search command", searchItem);
+      // console.log("this is search command", searchItem);
       open(`https://www.google.com/search?q=${searchItem}`);
     } else open("https://www.google.com");
   } else if (/open.*setting/i.test(cmd)) open("ms-settings:");
@@ -181,78 +176,79 @@ function commands(cmd) {
   }
 }
 
-function weatherData() {
-  fetch(
-    `https://api.open-meteo.com/v1/forecast?latitude=${latitude}&longitude=${longitude}&hourly=temperature_2m`
-  )
-    .then((res) => res.json())
-    .then((data) => {
-      console.log(data);
-      parseDateWeather(data);
-    })
-    .catch((e) => {
-      console.log(e);
-      speakThis("Unable to get weather data");
-    });
-}
-function dailyWeather() {
-  let fetchArr = [
-    fetch(
-      "https://api.open-meteo.com/v1/forecast?latitude=27.6791296&longitude=85.3409792&daily=temperature_2m_max&timezone=auto"
-    ),
-    fetch(
-      "https://api.open-meteo.com/v1/forecast?latitude=27.6791296&longitude=85.3409792&daily=temperature_2m_min&timezone=auto"
-    ),
-  ];
-  Promise.all(fetchArr)
-    .then((arr) => Promise.all(arr.map((arr) => arr.json())))
-    .then((res) => manageDailyData(res));
-}
-dailyWeather();
-function geoData() {
-  navigator.geolocation.getCurrentPosition(showPosition);
-}
+// function weatherData() {
+//   fetch(
+//     `https://api.open-meteo.com/v1/forecast?latitude=${latitude}&longitude=${longitude}&hourly=temperature_2m`
+//   )
+//     .then((res) => res.json())
+//     .then((data) => {
+//       // console.log(data);
+//       parseDateWeather(data);
+//       dailyWeather();
+//     })
+//     .catch((e) => {
+//       // console.log(e);
+//       speakThis("Unable to get weather data");
+//     });
+// }
+// function dailyWeather() {
+//   let fetchArr = [
+//     fetch(
+//       `https://api.open-meteo.com/v1/forecast?latitude=${latitude}&longitude=${longitude}&daily=temperature_2m_max&timezone=auto`
+//     ),
+//     fetch(
+//       `https://api.open-meteo.com/v1/forecast?latitude=${latitude}&longitude=${longitude}&daily=temperature_2m_min&timezone=auto`
+//     ),
+//   ];
+//   Promise.all(fetchArr)
+//     .then((arr) => Promise.all(arr.map((arr) => arr.json())))
+//     .then((res) => manageDailyData(res));
+// }
+// dailyWeather();
 
-async function showPosition(position) {
-  latitude = position.coords.latitude;
-  longitude = position.coords.longitude;
-  weatherData();
-  let location = await fetchLocationName(latitude, longitude);
-  let locCnt = document.querySelector(".temp-info> span");
-  let locationTxt = `${location.results[0].locations[0].adminArea1} , ${location.results[0].locations[0].adminArea4}`;
-  console.log(locationTxt, location);
-  locCnt.textContent = locationTxt;
-}
-function parseDateWeather(data) {
-  let date = new Date();
-  let year = date.getFullYear();
-  let month = (date.getMonth() + 1).toString().padStart(2, 0);
-  let hour = date.getHours().toString().padStart(2, 0);
-  let MonthDate = date.getDate().toString().padStart(2, 0);
-  let tempTime = data.hourly.time;
-  let temperature = data.hourly.temperature_2m;
-  let index = tempTime.findIndex(function (time) {
-    let pattern = new RegExp(`${year}-${month}-${MonthDate}T${hour}:00`);
-    return pattern.test(time);
-  });
-  tempNow.textContent = temperature[index] + "°C";
-  return temperature[index];
-}
-function manageDailyData(obj) {
-  // the future temperature data
-  let maxArr = obj[0].daily.temperature_2m_max;
-  let minArr = obj[1].daily.temperature_2m_min;
+// function geoData() {
+//   navigator.geolocation.getCurrentPosition(showPosition);
+// }
 
-  tempFut.innerHTML = maxArr
-    .map(function (el, i) {
-      return `
-        <span>${Math.floor(minArr[i])}-${Math.floor(el)}°C</span>
-        `;
-    })
-    .join("");
-}
+// async function showPosition(position) {
+//   latitude = position.coords.latitude;
+//   longitude = position.coords.longitude;
+//   weatherData();
+//   let location = await fetchLocationName(latitude, longitude);
+//   let locCnt = document.querySelector(".temp-info> span");
+//   let locationTxt = `${location.results[0].locations[0].adminArea1} , ${location.results[0].locations[0].adminArea4}`;
+//   locCnt.textContent = locationTxt;
+// }
+// function parseDateWeather(data) {
+//   let date = new Date();
+//   let year = date.getFullYear();
+//   let month = (date.getMonth() + 1).toString().padStart(2, 0);
+//   let hour = date.getHours().toString().padStart(2, 0);
+//   let MonthDate = date.getDate().toString().padStart(2, 0);
+//   let tempTime = data.hourly.time;
+//   let temperature = data.hourly.temperature_2m;
+//   let index = tempTime.findIndex(function (time) {
+//     let pattern = new RegExp(`${year}-${month}-${MonthDate}T${hour}:00`);
+//     return pattern.test(time);
+//   });
+//   tempNow.textContent = temperature[index] + "°C";
+//   return temperature[index];
+// }
+// function manageDailyData(obj) {
+//   // the future temperature data
+//   let maxArr = obj[0].daily.temperature_2m_max;
+//   let minArr = obj[1].daily.temperature_2m_min;
 
-geoData();
+//   tempFut.innerHTML = maxArr
+//     .map(function (el, i) {
+//       return `
+//         <span>${Math.floor(minArr[i])}-${Math.floor(el)}°C</span>
+//         `;
+//     })
+//     .join("");
+// }
+
+// geoData();
 function modeChange(arg) {
   if (arg == undefined || arg == null) return staySilent;
   staySilent = arg;

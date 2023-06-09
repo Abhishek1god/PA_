@@ -21,12 +21,13 @@ function webOpen(site) {
 function helper() {
   return commandInfo
     .map(function (el) {
-      if (el.name === "help") return;
+      if (el.name === "help" || el.name === "") return;
       return `${el.name}: ${el.desc} `;
     })
     .join("\r\n");
 }
 function echo(val, mult_val = null) {
+  if (!val) throw new Error("Enter text to print");
   return `${val} ${mult_val.join(" ")}`;
 }
 function modeTog(val) {
@@ -78,6 +79,7 @@ export const commandInfo = [
     name: "echo",
     func: echo,
     desc: "Prints the text passed ~ echo 'text'",
+    err: "Enter a argument",
   },
   {
     name: "mode",
@@ -90,6 +92,12 @@ export const commandInfo = [
     desc: "Clear's the terminal",
   },
   {
+    name: "",
+    func: function () {
+      return "";
+    },
+  },
+  {
     name: "help",
     func: helper,
     desc: "Prints out the list of commmand with their desc",
@@ -97,9 +105,13 @@ export const commandInfo = [
 ];
 
 export const cliError = function (err, resTxt) {
+  if (!resTxt) {
+    console.log(err);
+    resTxt = cliBody.lastElementChild;
+  }
   console.log(commandInfo);
   resTxt.classList.add("err");
-  resTxt.textContent = `Error: ${err}`;
+  resTxt.textContent = `error: ${err}`;
   cliBody.append(resTxt);
   console.error("Error hapen");
 };

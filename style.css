@@ -54,7 +54,6 @@ body {
 .cli-body {
   padding: 1px 14px 60px 25px;
   font-weight: bold;
-  /* color: #c0c0c0; */
   word-wrap: break-word;
   overflow-y: auto;
   height: 80vh;
@@ -64,10 +63,10 @@ body {
   background-color: red;
 }
 .cli-container:focus-within .cli-head .dot:nth-child(2) {
-  background-color: rgb(250, 172, 28);
+  background-color: #faac1c;
 }
 .cli-container:focus-within .cli-head .dot:nth-child(3) {
-  background-color: rgb(86, 243, 72);
+  background-color: #56f348;
 }
 .cli-body::-webkit-scrollbar {
   width: 0.5em;
@@ -109,7 +108,7 @@ textarea {
   font-size: 14px;
   white-space: pre-line;
 }
-.cli-res.err {
+.err {
   color: red;
 }
 .animation {
@@ -198,6 +197,7 @@ textarea {
   content: "|";
   animation: blink 0.5s infinite alternate;
 }
+
 @keyframes blink {
   50% {
     color: transparent;
