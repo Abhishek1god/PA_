@@ -1,4 +1,3 @@
-import { some } from "./recognition.js";
 import { cliError } from "./commands.js";
 let API_KEY = "xrXFrwg5tjxbBDqL07dy3ZK5KTQO9siv";
 let latitude, longitude;
@@ -85,18 +84,22 @@ function parseDateWeather(data) {
   tempNow.textContent = temperature[index] + "°C";
   return temperature[index];
 }
-function manageDailyData(obj) {
+async function manageDailyData(obj) {
   // the future temperature data
-  let maxArr = obj[0].daily.temperature_2m_max;
-  let minArr = obj[1].daily.temperature_2m_min;
+  try {
+    let maxArr = await obj[0].daily.temperature_2m_max;
+    let minArr = await obj[1].daily.temperature_2m_min;
 
-  tempFut.innerHTML = maxArr
-    .map(function (el, i) {
-      return `
+    tempFut.innerHTML = maxArr
+      .map(function (el, i) {
+        return `
         <span>${Math.floor(minArr[i])}-${Math.floor(el)}°C</span>
         `;
-    })
-    .join("");
+      })
+      .join("");
+  } catch (e) {
+    console.log();
+  }
 }
 
 geoData();

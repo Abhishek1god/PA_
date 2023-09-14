@@ -1,6 +1,7 @@
 import { command } from "./web.js";
 import { localStorageGet, localStorageSet } from "./web.js";
-import { fetchLocationName } from "./main.js";
+import { stopWatch, setterTimer, clearTimer } from "./timer.js";
+
 let staySilent = false;
 let SpeechRecognition = window.SpeechRecognition || webkitSpeechRecognition;
 let recognition = new SpeechRecognition();
@@ -17,7 +18,7 @@ let speaking = document.querySelector(".speaking_");
 let modeTxt = document.querySelector(".speaking_ span");
 
 recognition.lang = "en-US";
-console.log(synth.pending);
+// console.log(synth.pending);
 
 recognition.addEventListener("result", function (res) {
   console.log(
@@ -34,7 +35,7 @@ recognition.addEventListener("end", () => {
 synth.onvoiceschanged = function (e) {
   let voices = this.getVoices();
   utter.voice = voices[1];
-  // console.log(utter.voice);
+
   if (shouldListen) recognition.start();
 };
 function speakThis(msg = "Please enter something", multi_msg = null) {
@@ -63,7 +64,7 @@ function commands(cmd) {
   let date = new Date();
   // console.log("commanded");
 
-  if (/^silent$|\bstay silent\b/i.test(cmd)) {
+  if (/^silent mode$|\bstay silent\b/i.test(cmd)) {
     speakThis("Silent Mode");
     modeTxt.textContent = "Silent Mode";
     staySilent = true;
@@ -113,6 +114,27 @@ function commands(cmd) {
     speakThis(tempNow.textContent);
   } else if (/temperature tomorrow/i.test(cmd)) {
     speakThis(tempFut.querySelectorAll("span")[1].textContent);
+  } else if (/start\s?a? timer/i.test(cmd)) {
+    stopWatch();
+  } else if (/set\s?a? timer for/i.test(cmd)) {
+    let [time, type] = cmd.split("for ")[1].split(" ");
+    let s, h, m;
+
+    if (type.includes("second")) {
+      s = Number(time);
+    }
+    if (type.includes("minute")) {
+      m = Number(time);
+    }
+    if (type.includes("hour")) {
+      h = Number(time);
+    }
+
+    setterTimer(s, m, h);
+  } else if (/stop the timer/i.test(cmd)) {
+    clearTimer();
+  } else if (/What is the (time|current time)/i.test(cmd)) {
+    speakThis("It's " + new Date().getHours());
   } else if (/open.*facebook/i.test(cmd)) {
     speakThis("Opening Facebook");
     open("https://www.facebook.com");
@@ -122,13 +144,13 @@ function commands(cmd) {
       let searchItem = cmd.includes("for")
         ? cmd.split("for")[1]
         : cmd.split("search")[1];
-      // console.log("this is search command", searchItem);
+
       open(`https://www.youtube.com/results?search_query=${searchItem}`);
       return;
     }
     if (/open youtube( and)? play/i.test(cmd)) {
       let searchItem = cmd.split("play")[1];
-      // console.log("this is search command", searchItem);
+
       open(`https://www.youtube.com/results?search_query=${searchItem} |`);
       return;
     } else open("https://www.youtube.com");
@@ -176,84 +198,10 @@ function commands(cmd) {
   }
 }
 
-// function weatherData() {
-//   fetch(
-//     `https://api.open-meteo.com/v1/forecast?latitude=${latitude}&longitude=${longitude}&hourly=temperature_2m`
-//   )
-//     .then((res) => res.json())
-//     .then((data) => {
-//       // console.log(data);
-//       parseDateWeather(data);
-//       dailyWeather();
-//     })
-//     .catch((e) => {
-//       // console.log(e);
-//       speakThis("Unable to get weather data");
-//     });
-// }
-// function dailyWeather() {
-//   let fetchArr = [
-//     fetch(
-//       `https://api.open-meteo.com/v1/forecast?latitude=${latitude}&longitude=${longitude}&daily=temperature_2m_max&timezone=auto`
-//     ),
-//     fetch(
-//       `https://api.open-meteo.com/v1/forecast?latitude=${latitude}&longitude=${longitude}&daily=temperature_2m_min&timezone=auto`
-//     ),
-//   ];
-//   Promise.all(fetchArr)
-//     .then((arr) => Promise.all(arr.map((arr) => arr.json())))
-//     .then((res) => manageDailyData(res));
-// }
-// dailyWeather();
-
-// function geoData() {
-//   navigator.geolocation.getCurrentPosition(showPosition);
-// }
-
-// async function showPosition(position) {
-//   latitude = position.coords.latitude;
-//   longitude = position.coords.longitude;
-//   weatherData();
-//   let location = await fetchLocationName(latitude, longitude);
-//   let locCnt = document.querySelector(".temp-info> span");
-//   let locationTxt = `${location.results[0].locations[0].adminArea1} , ${location.results[0].locations[0].adminArea4}`;
-//   locCnt.textContent = locationTxt;
-// }
-// function parseDateWeather(data) {
-//   let date = new Date();
-//   let year = date.getFullYear();
-//   let month = (date.getMonth() + 1).toString().padStart(2, 0);
-//   let hour = date.getHours().toString().padStart(2, 0);
-//   let MonthDate = date.getDate().toString().padStart(2, 0);
-//   let tempTime = data.hourly.time;
-//   let temperature = data.hourly.temperature_2m;
-//   let index = tempTime.findIndex(function (time) {
-//     let pattern = new RegExp(`${year}-${month}-${MonthDate}T${hour}:00`);
-//     return pattern.test(time);
-//   });
-//   tempNow.textContent = temperature[index] + "°C";
-//   return temperature[index];
-// }
-// function manageDailyData(obj) {
-//   // the future temperature data
-//   let maxArr = obj[0].daily.temperature_2m_max;
-//   let minArr = obj[1].daily.temperature_2m_min;
-
-//   tempFut.innerHTML = maxArr
-//     .map(function (el, i) {
-//       return `
-//         <span>${Math.floor(minArr[i])}-${Math.floor(el)}°C</span>
-//         `;
-//     })
-//     .join("");
-// }
-
-// geoData();
 function modeChange(arg) {
   if (arg == undefined || arg == null) return staySilent;
   staySilent = arg;
   modeTxt.textContent = `${staySilent ? "Silent Mode" : "Active Mode"}`;
 }
 
-export const some = "hello";
 export { speakThis, modeChange };
