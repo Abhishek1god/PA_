@@ -1,4 +1,4 @@
-import { cliError } from "./commands.js";
+import { cliError } from "./cli.js";
 let API_KEY = "xrXFrwg5tjxbBDqL07dy3ZK5KTQO9siv";
 let latitude, longitude;
 let tempNow = document.querySelector(".temp_now");
@@ -50,8 +50,6 @@ function dailyWeather() {
   }
 }
 
-dailyWeather();
-
 function geoData() {
   navigator.geolocation.getCurrentPosition(showPosition);
 }
@@ -61,6 +59,7 @@ async function showPosition(position) {
     latitude = position.coords.latitude;
     longitude = position.coords.longitude;
     weatherData();
+
     let location = await fetchLocationName(latitude, longitude);
     let locCnt = document.querySelector(".temp-info> span");
     let locationTxt = `${location.results[0].locations[0].adminArea1} , ${location.results[0].locations[0].adminArea4}`;
@@ -97,9 +96,7 @@ async function manageDailyData(obj) {
         `;
       })
       .join("");
-  } catch (e) {
-    console.log();
-  }
+  } catch (e) {}
 }
 
 geoData();

@@ -1,5 +1,4 @@
 import { localStorageGet, localStorageSet } from "./web.js";
-import { cliBody } from "./cli.js";
 import { speakThis, modeChange } from "./recognition.js";
 import { pipModeInitiate } from "./pip.js";
 import { setterTimer, stopWatch, clearTimer } from "./timer.js";
@@ -14,6 +13,9 @@ function getCommand(val) {
 }
 
 function setCommand(key, val = null) {
+  if (!val) {
+    throw new Error("Arguments expected");
+  }
   localStorageSet(key, val.join(" "));
 }
 
@@ -61,7 +63,6 @@ function helper() {
       return `${el.name}: ${el.desc} `;
     })
     .join("\r\n");
-  console.log(typeof val);
   return val;
 }
 function echo(val, mult_val = null) {
@@ -70,7 +71,6 @@ function echo(val, mult_val = null) {
 }
 function modeTog(val) {
   if (!val) {
-    console.log(modeChange());
     return `${modeChange() ? "Silent Mode" : "Active Mode"}`;
   }
   val = val.trim();
@@ -154,17 +154,3 @@ export const commandInfo = [
     },
   },
 ];
-
-export const cliError = function (err, resTxt) {
-  // the resTxt is actually the span that is resposne where we set err class to make it error
-  // in any case if there is no resTxt then set it to the last child of clibody
-  if (!resTxt) {
-    console.log(err);
-    resTxt = cliBody.lastElementChild;
-  }
-  // adding the error class
-  resTxt.classList.add("err");
-
-  resTxt.textContent = `Error: ${err.message || err}`;
-  cliBody.append(resTxt);
-};

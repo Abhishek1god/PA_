@@ -20,13 +20,14 @@ cliContain.addEventListener("keypress", function (e) {
   if (e.keyCode != 13) return;
   let cmd = txtArea.value;
 
-  //appends the response or return value to the cli
+  //appends the response or return value to the cli (command line)
   appendCommand(cmd);
+});
 
+function cliNewArea() {
   // create a new cli location
   let locationTxt = document.createElement("span");
-
-  //new command div in which we type whose value is set by text area
+  //new command div in which we type,  whose value is set by text area
   let cliDiv = document.createElement("div");
   cliDiv.classList.add("cli-commands");
   locationTxt.classList.add("location-txt");
@@ -43,17 +44,31 @@ cliContain.addEventListener("keypress", function (e) {
   cliCommand.classList.add("blinker");
   // set the text area to empty again
   txtArea.value = "";
-});
-export { cliBody };
-// export const errFuncLoc = function () {
-//   let locationTxt = document.createElement("span");
-//   let cliDiv = document.createElement("div");
-//   cliDiv.classList.add("cli-commands");
-//   locationTxt.classList.add("location-txt");
-//   locationTxt.textContent = LOCATION_TXT;
-//   cliCommand.classList.remove("blinker");
-//   cliBody.append(locationTxt, cliDiv);
-//   cliCommand = cliBody.lastElementChild;
-//   cliCommand.classList.add("blinker");
-//   txtArea.value = "";
-// };
+}
+function cliResponse(res) {
+  let resTxt = document.createElement("span");
+  resTxt.classList.add("cli-res");
+
+  resTxt.innerHTML = res;
+  cliBody.append(resTxt);
+}
+function cliError(err, resTxt) {
+  // the resTxt is actually the span that is resposne where we set err class to make it error
+  // in any case if there is no resTxt then set it to the last child of clibody
+  if (!resTxt) {
+    // create the response span and then set it to resTxt
+    cliResponse();
+    resTxt = cliBody.lastElementChild;
+  }
+  // adding the error class
+  resTxt.classList.add("err");
+
+  resTxt.textContent = `Error: ${err.message || err}`;
+  cliBody.append(resTxt);
+  cliNewArea();
+}
+function clearCli() {
+  cliBody.innerHTML = "";
+}
+
+export { cliBody, cliNewArea, cliError, cliResponse, clearCli };
