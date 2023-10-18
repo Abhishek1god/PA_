@@ -9,4 +9,3 @@ A app i build when i was learning javascript.
 - Can open youtube,facebook and search for you.
 - Has timer and stopwatch and can tell the temperature through an API
 
-(Avoid the code if you want to maintain your sanity. Spoilers it's not very clean)

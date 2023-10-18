@@ -1,6 +1,5 @@
 export function About() {
-  let About = `A app i built when i was learning Javascript. Needless to say I am not very proud of the code. But still i enjoyed this project 
-  \n
+  let About = `A app i built when i was learning Javascript.\n
   It has PIP(Picture in Picture) mode. (Click on circle)\n
   Has a CLI\n
   Has an that assistant can remember name (My name is --)\n
