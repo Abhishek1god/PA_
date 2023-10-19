@@ -51,7 +51,13 @@ function dailyWeather() {
 }
 
 function geoData() {
-  navigator.geolocation.getCurrentPosition(showPosition);
+  navigator.geolocation.getCurrentPosition(
+    showPosition,
+    function () {
+      cliError("Failed to get the location");
+    },
+    { timeout: 8000 }
+  );
 }
 
 async function showPosition(position) {
