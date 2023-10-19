@@ -8,6 +8,11 @@ const pipIsOnDiv = document.querySelector(".pip-on-div");
 speakingDiv.addEventListener("click", pipModeInitiate);
 
 async function pipModeInitiate() {
+  if (!("documentPictureInPicture" in window)) {
+    cliError("PIP mode not supported");
+    return;
+  }
+
   if (documentPictureInPicture.window) return;
 
   try {
